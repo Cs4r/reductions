@@ -41,22 +41,37 @@ object ParallelParenthesesBalancing {
   /** Returns `true` iff the parentheses in the input `chars` are balanced.
    */
   def balance(chars: Array[Char]): Boolean = {
-    ???
+    chars.foldLeft(0)((acc, char) => char match {
+      case '(' => if (acc < 0) -1 else acc + 1
+      case ')' => if (acc <= 0) -1 else acc - 1
+      case _ => acc
+    }) == 0
   }
 
   /** Returns `true` iff the parentheses in the input `chars` are balanced.
    */
   def parBalance(chars: Array[Char], threshold: Int): Boolean = {
 
-    def traverse(idx: Int, until: Int, arg1: Int, arg2: Int) /*: ???*/ = {
-      ???
+    def traverse(idx: Int, until: Int, left: Int, right: Int) : (Int, Int) = {
+      (idx until until).foldLeft((0, 0))((acc, current) => current match {
+        case ')' => (acc._1-1, acc._2+1)
+        case '(' => (acc._1+1, acc._2-1)
+        case _ => acc
+      })
     }
 
-    def reduce(from: Int, until: Int) /*: ???*/ = {
-      ???
+    def reduce(from: Int, until: Int): (Int, Int) = {
+      val size = until - from
+      if (size < threshold) traverse(from, until, 0, 0)
+      else {
+          val m = size / 2
+          val ( (l1, r1), (l2, r2)) = parallel(reduce(from, from + m), reduce(from + m, until))
+          (l1+r1, l2+r2)
+      }
+
     }
 
-    reduce(0, chars.length) == ???
+    reduce(0, chars.length) == (0, 0)
   }
 
   // For those who want more:
